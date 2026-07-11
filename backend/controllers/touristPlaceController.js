@@ -28,14 +28,16 @@ const createPlace = async (req, res) => {
 };
 
 const getAllPlaces = async (req, res) => {
+  console.log("hello");
   try {
-    const { category, search } = req.query;
-    const places = await TouristPlace.findAll({ category, search });
+    // const { category, search } = req.query;
+    const places = await TouristPlace.findAll({});
+    console.log(places);
 
     res.status(200).json({
       status: 'success',
       results: places.length,
-      data: { places }
+      data: places
     });
   } catch (error) {
     console.error('Error getting places:', error);

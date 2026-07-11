@@ -1,74 +1,90 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
+import { MainLayout } from './components/layouts/MainLayout';
+import { DashboardLayout } from './components/layouts/DashboardLayout';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
-// Simple structural placeholders since UI pages are not generated yet
-const LandingDashboard = () => (
-  <div className="card">
-    <h2>Welcome to AI Smart Tourism Management System</h2>
-    <p>Select your portal to begin:</p>
-    <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-      <Link to="/tourist" className="btn btn-primary">Tourist Portal</Link>
-      <Link to="/hotel-owner" className="btn btn-secondary">Hotel Owner Portal</Link>
-      <Link to="/admin" className="btn btn-danger">Admin Portal</Link>
-    </div>
-  </div>
-);
+// Public Pages
+import { Home } from './pages/Home';
+import { Login } from './pages/Login';
+import { Register } from './pages/Register';
+import { TouristPlaces } from './pages/TouristPlaces';
+import { Hotels } from './pages/Hotels';
+import { HotelDetails } from './pages/HotelDetails';
 
-const TouristDashboard = () => (
-  <div className="card">
-    <h2>Tourist Portal</h2>
-    <p>Explore destinations, generate itineraries, and book hotels.</p>
-    <Link to="/" className="btn">Back to Selection</Link>
-  </div>
-);
-
-const HotelOwnerDashboard = () => (
-  <div className="card">
-    <h2>Hotel Owner Portal</h2>
-    <p>Manage bookings, hotel profiles, and customer services.</p>
-    <Link to="/" className="btn">Back to Selection</Link>
-  </div>
-);
-
-const AdminDashboard = () => (
-  <div className="card">
-    <h2>Tourism Authority Admin Portal</h2>
-    <p>Manage destinations, monitor statistics, and handle approvals.</p>
-    <Link to="/" className="btn">Back to Selection</Link>
-  </div>
-);
-
-const NotFound = () => (
-  <div className="card">
-    <h2>404 - Not Found</h2>
-    <p>The requested portal does not exist.</p>
-    <Link to="/" className="btn">Return Home</Link>
-  </div>
-);
+// Dashboard / Protected Pages
+import { Profile } from './pages/Profile';
+import { Notifications } from './pages/Notifications';
+import { TouristDashboard } from './pages/TouristDashboard';
+import { MyBookings } from './pages/MyBookings';
+import { Favorites } from './pages/Favorites';
+import { AITripPlanner } from './pages/AITripPlanner';
+import { HotelOwnerDashboard } from './pages/HotelOwnerDashboard';
+import { AdminDashboard } from './pages/AdminDashboard';
+import { Booking } from './pages/Booking';
 
 function App() {
   return (
-    <Router>
-      <div className="app-container">
-        <header className="app-header">
-          <h1>AI Smart Tourism Management System</h1>
-        </header>
+    <Routes>
+      {/* Public Routes with MainLayout */}
+      <Route element={<MainLayout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/places" element={<TouristPlaces />} />
+        <Route path="/hotels" element={<Hotels />} />
+        <Route path="/hotels/:id" element={<HotelDetails />} />
+      </Route>
 
-        <main className="app-content">
-          <Routes>
-            <Route path="/" element={<LandingDashboard />} />
-            <Route path="/tourist" element={<TouristDashboard />} />
-            <Route path="/hotel-owner" element={<HotelOwnerDashboard />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </main>
+      {/* Protected Dashboard Routes */}
+      <Route path="/dashboard" element={<DashboardLayout />}>
+        {/* Tourist Routes */}
+        <Route element={<ProtectedRoute allowedRoles={['tourist']} />}>
+          <Route index element={<TouristDashboard />} />
+          <Route path="bookings" element={<MyBookings />} />
+          <Route path="favorites" element={<Favorites />} />
+        </Route>
 
-        <footer className="app-footer">
-          <p>&copy; {new Date().getFullYear()} AI Smart Tourism Management System. All rights reserved.</p>
-        </footer>
-      </div>
-    </Router>
+        {/* Hotel Owner Routes */}
+        <Route element={<ProtectedRoute allowedRoles={['hotel_owner']} />}>
+          <Route index element={<HotelOwnerDashboard />} />
+        </Route>
+
+        {/* Admin Routes */}
+        <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+          <Route index element={<AdminDashboard />} />
+        </Route>
+
+        {/* Common Dashboard Routes */}
+        <Route path="profile" element={<Profile />} />
+        <Route path="notifications" element={<Notifications />} />
+      </Route>
+
+      {/* AI Planner Route */}
+      {/* <Route path="/planner" element={
+        <ProtectedRoute allowedRoles={['tourist']}>
+          <MainLayout>
+            <AITripPlanner />
+          </MainLayout>
+        </ProtectedRoute>
+      } /> */}
+
+
+      <Route element={<ProtectedRoute allowedRoles={['tourist']} />}>
+        <Route path="/planner" element={<AITripPlanner />} />
+      </Route>
+      {/* Booking Route */}
+      {/* <Route path="/book/:hotelId" element={
+
+        <Booking />
+
+      } /> */}
+      <Route element={<ProtectedRoute allowedRoles={['tourist']} />}>
+        <Route path="/book/:hotelId/:roomId" element={<Booking />} />
+      </Route>
+
+
+    </Routes>
   );
 }
 

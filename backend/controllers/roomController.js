@@ -47,8 +47,10 @@ const createRoom = async (req, res) => {
 };
 
 const getRooms = async (req, res) => {
+  console.log("hjwer");
   try {
     const { hotelId } = req.params;
+    console.log(hotelId);
     if (!hotelId) {
       return res.status(400).json({
         status: 'fail',

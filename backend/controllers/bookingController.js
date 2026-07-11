@@ -3,6 +3,7 @@ const Room = require('../models/roomModel');
 const Hotel = require('../models/hotelModel');
 
 const bookRoom = async (req, res) => {
+  console.log("hsade");
   try {
     const { roomId, checkInDate, checkOutDate } = req.body;
     const touristId = req.user.id;

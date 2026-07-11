@@ -30,13 +30,13 @@ const createHotel = async (req, res) => {
 
 const getAllHotels = async (req, res) => {
   try {
-    const { search } = req.query;
-    const hotels = await Hotel.findAll({ search });
+    // const { search } = req.query;
+    const hotels = await Hotel.findAll({});
 
     res.status(200).json({
       status: 'success',
       results: hotels.length,
-      data: { hotels }
+      data: hotels
     });
   } catch (error) {
     console.error('Error getting hotels:', error);
@@ -48,6 +48,7 @@ const getAllHotels = async (req, res) => {
 };
 
 const getHotelById = async (req, res) => {
+  console.log("hello");
   try {
     const { id } = req.params;
     const hotel = await Hotel.findById(id);
