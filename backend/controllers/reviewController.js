@@ -1,3 +1,4 @@
+const { pool } = require('../config/db');
 const Review = require('../models/reviewModel');
 const TouristPlace = require('../models/touristPlaceModel');
 const Hotel = require('../models/hotelModel');
@@ -43,6 +44,34 @@ const createReview = async (req, res) => {
         return res.status(404).json({
           status: 'fail',
           message: 'No hotel found with that ID.'
+        });
+      }
+
+      // Check if tourist has a COMPLETED booking for this hotel
+      const bookingQuery = `
+        SELECT b.id 
+        FROM bookings b 
+        JOIN hotel_rooms r ON b.room_id = r.id 
+        WHERE b.tourist_id = ? AND r.hotel_id = ? AND b.status = 'completed'
+        LIMIT 1
+      `;
+      const [bookings] = await pool.execute(bookingQuery, [userId, hotelId]);
+      if (bookings.length === 0) {
+        return res.status(403).json({
+          status: 'fail',
+          message: 'You can only rate and review hotels you have stayed at.'
+        });
+      }
+
+      // Check if user has already reviewed this hotel
+      const existingReviewQuery = `
+        SELECT id FROM reviews WHERE user_id = ? AND hotel_id = ? LIMIT 1
+      `;
+      const [existingReviews] = await pool.execute(existingReviewQuery, [userId, hotelId]);
+      if (existingReviews.length > 0) {
+        return res.status(400).json({
+          status: 'fail',
+          message: 'You have already reviewed this hotel.'
         });
       }
     }

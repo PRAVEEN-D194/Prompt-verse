@@ -1,12 +1,31 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { notificationService } from '../services/notificationService';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const fetchUnreadCount = async () => {
+    if (!user) return;
+    try {
+      const res = await notificationService.getNotifications();
+      const list = res.data?.notifications || res.notifications || [];
+      setUnreadCount(list.filter(n => !n.is_read).length);
+    } catch (error) {
+      console.error("Error fetching notifications count in navbar:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUnreadCount();
+    const interval = setInterval(fetchUnreadCount, 10000);
+    return () => clearInterval(interval);
+  }, [user]);
 
   const handleLogout = () => {
     logout();
@@ -22,26 +41,27 @@ const Navbar = () => {
     }`;
 
   const touristLinks = [
-    { to: '/tourist', label: '🏠 Dashboard' },
+    { to: '/dashboard', label: '🏠 Dashboard' },
     { to: '/places', label: '🗺️ Places' },
     { to: '/hotels', label: '🏨 Hotels' },
-    { to: '/my-bookings', label: '📋 Bookings' },
-    { to: '/favorites', label: '❤️ Favorites' },
-    { to: '/trip-planner', label: '✈️ Trip Planner' },
-    { to: '/notifications', label: '🔔 Notifications' },
+    { to: '/dashboard/bookings', label: '📋 Bookings' },
+    { to: '/dashboard/favorites', label: '❤️ Favorites' },
+    { to: '/planner', label: '✈️ Trip Planner' },
+    { to: '/dashboard/notifications', label: `🔔 Notifications ${unreadCount > 0 ? `(${unreadCount})` : ''}` },
   ];
 
   const ownerLinks = [
-    { to: '/hotel-owner', label: '🏠 Dashboard' },
-    { to: '/hotels', label: '🏨 My Hotels' },
-    { to: '/notifications', label: '🔔 Notifications' },
+    { to: '/dashboard', label: '🏠 Dashboard' },
+    { to: '/dashboard/my-hotels', label: '🏨 My Hotels' },
+    { to: '/dashboard/hotel-bookings', label: '📋 Bookings' },
+    { to: '/dashboard/notifications', label: `🔔 Notifications ${unreadCount > 0 ? `(${unreadCount})` : ''}` },
   ];
 
   const adminLinks = [
-    { to: '/admin', label: '🏠 Dashboard' },
-    { to: '/places', label: '🗺️ Places' },
-    { to: '/hotels', label: '🏨 Hotels' },
-    { to: '/notifications', label: '🔔 Notifications' },
+    { to: '/dashboard', label: '🏠 Dashboard' },
+    { to: '/dashboard/manage-places', label: '🗺️ Manage Places' },
+    { to: '/dashboard/manage-hotels', label: '🏨 Manage Hotels' },
+    { to: '/dashboard/notifications', label: `🔔 Notifications ${unreadCount > 0 ? `(${unreadCount})` : ''}` },
   ];
 
   const getLinks = () => {

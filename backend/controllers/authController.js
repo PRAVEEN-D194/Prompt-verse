@@ -17,10 +17,9 @@ const signToken = (id) => {
  * User Registration Handler
  */
 const register = async (req, res) => {
-  console.log("hello")
+
   try {
     const { username, email, password, role } = req.body;
-    console.log(username, email, password, role);
     // 1. Basic validation
     if (!username || !email || !password || !role) {
       return res.status(400).json({
@@ -32,7 +31,7 @@ const register = async (req, res) => {
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      console.log("a");
+
       return res.status(400).json({
         status: 'fail',
         message: 'Please provide a valid email address.'
@@ -41,7 +40,7 @@ const register = async (req, res) => {
 
     // Validate password length
     if (password.length < 6) {
-      console.log("b");
+
       return res.status(400).json({
         status: 'fail',
         message: 'Password must be at least 6 characters long.'
@@ -51,7 +50,7 @@ const register = async (req, res) => {
     // Validate role definition
     const validRoles = ['tourist', 'hotel_owner', 'admin'];
     if (!validRoles.includes(role)) {
-      console.log("c");
+
       return res.status(400).json({
         status: 'fail',
         message: 'Invalid role selection. Must be either tourist, hotel_owner, or admin.'
@@ -69,7 +68,7 @@ const register = async (req, res) => {
 
     // 3. Hash the password
     const passwordHash = await bcrypt.hash(password, 12);
-    console.log("ifn");
+ 
     // 4. Create user in database
     const newUserId = await User.create({
       username,
@@ -80,7 +79,7 @@ const register = async (req, res) => {
 
     // 5. Generate token and return success response
     const token = signToken(newUserId);
-    console.log("success");
+  
     res.status(201).json({
       status: 'success',
       token,

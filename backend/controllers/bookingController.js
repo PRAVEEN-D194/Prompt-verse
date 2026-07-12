@@ -1,6 +1,7 @@
 const Booking = require('../models/bookingModel');
 const Room = require('../models/roomModel');
 const Hotel = require('../models/hotelModel');
+const Notification = require('../models/notificationModel');
 
 const bookRoom = async (req, res) => {
   console.log("hsade");
@@ -74,6 +75,24 @@ const bookRoom = async (req, res) => {
 
     const newBooking = await Booking.findById(bookingId);
 
+    // Create notifications for Booking Created
+    try {
+      await Promise.all([
+        Notification.create({
+          userId: touristId,
+          title: "Booking Submitted",
+          message: "Your booking request has been submitted successfully."
+        }),
+        Notification.create({
+          userId: newBooking.hotel_owner_id,
+          title: "New Booking Request",
+          message: "A new booking request has been received."
+        })
+      ]);
+    } catch (notifError) {
+      console.error("Error creating notifications on bookRoom:", notifError);
+    }
+
     res.status(201).json({
       status: 'success',
       data: { booking: newBooking }
@@ -144,6 +163,56 @@ const getHotelBookings = async (req, res) => {
   }
 };
 
+const createStatusNotifications = async (booking, status) => {
+  try {
+    const touristId = booking.tourist_id;
+    const ownerId = booking.hotel_owner_id;
+
+    if (status === 'confirmed') {
+      await Promise.all([
+        Notification.create({
+          userId: touristId,
+          title: "Booking Confirmed",
+          message: "Your booking has been confirmed."
+        }),
+        Notification.create({
+          userId: ownerId,
+          title: "Booking Confirmed",
+          message: "You confirmed the booking."
+        })
+      ]);
+    } else if (status === 'completed') {
+      await Promise.all([
+        Notification.create({
+          userId: touristId,
+          title: "Booking Completed",
+          message: "Your stay has been completed. You can now rate and review the hotel."
+        }),
+        Notification.create({
+          userId: ownerId,
+          title: "Booking Completed",
+          message: "A guest has completed their stay."
+        })
+      ]);
+    } else if (status === 'cancelled') {
+      await Promise.all([
+        Notification.create({
+          userId: touristId,
+          title: "Booking Cancelled",
+          message: "Your booking has been cancelled."
+        }),
+        Notification.create({
+          userId: ownerId,
+          title: "Booking Cancelled",
+          message: "A booking has been cancelled."
+        })
+      ]);
+    }
+  } catch (error) {
+    console.error("Error creating status notifications:", error);
+  }
+};
+
 const updateBookingStatus = async (req, res) => {
   try {
     const { id } = req.params;
@@ -184,6 +253,9 @@ const updateBookingStatus = async (req, res) => {
     }
 
     const updatedBooking = await Booking.findById(id);
+
+    // Trigger status update notifications
+    await createStatusNotifications(booking, status);
 
     res.status(200).json({
       status: 'success',
@@ -243,6 +315,9 @@ const cancelBooking = async (req, res) => {
     }
 
     const cancelledBooking = await Booking.findById(id);
+
+    // Trigger status update notifications
+    await createStatusNotifications(booking, 'cancelled');
 
     res.status(200).json({
       status: 'success',

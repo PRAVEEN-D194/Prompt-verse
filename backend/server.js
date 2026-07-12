@@ -35,6 +35,7 @@ const favoriteRoutes = require('./routes/favoriteRoutes');
 const itineraryRoutes = require('./routes/itineraryRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const aiRoutes = require('./routes/aiRoutes');
 
 app.use('/api/places', touristPlaceRoutes);
 app.use('/api/hotels', hotelRoutes);
@@ -45,6 +46,7 @@ app.use('/api/favorites', favoriteRoutes);
 app.use('/api/itineraries', itineraryRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/ai', aiRoutes);
 
 
 // Health check / API status endpoint

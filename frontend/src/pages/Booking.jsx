@@ -138,10 +138,10 @@ export const Booking = () => {
             <CardContent className="p-6">
               <h3 className="font-semibold text-lg mb-4">Summary</h3>
               <div className="flex gap-4 mb-6">
-                <img src={hotel.images?.[0] || 'https://via.placeholder.com/100'} alt={hotel.name} className="w-24 h-24 object-cover rounded-md" />
+                <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=200&auto=format&fit=crop&q=60" alt={hotel.name} className="w-24 h-24 object-cover rounded-md" />
                 <div>
                   <h4 className="font-semibold">{hotel.name}</h4>
-                  <p className="text-sm text-muted-foreground">{hotel.location?.city}</p>
+                  <p className="text-sm text-muted-foreground">{hotel.address}</p>
                 </div>
               </div>
 
